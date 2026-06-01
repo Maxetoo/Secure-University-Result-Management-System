@@ -13,6 +13,8 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./configs/swaggerConfig');
 
 const app = express();
 
@@ -48,6 +50,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(morgan('tiny', {
   skip: (req) => req.path.startsWith('/socket.io'),
+}));
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'University Result Management System — API Docs',
+  swaggerOptions: {
+    persistAuthorization: true,
+  },
 }));
 
 // Serve Vite frontend static files

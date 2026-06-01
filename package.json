@@ -50,6 +50,8 @@
         "sitemap": "^9.0.1",
         "streamifier": "^0.1.1",
         "stripe": "^20.4.1",
+        "swagger-jsdoc": "^6.3.0",
+        "swagger-ui-express": "^5.0.1",
         "uniqid": "^5.4.0",
         "uuid": "^13.0.0",
         "validator": "^13.15.26",
