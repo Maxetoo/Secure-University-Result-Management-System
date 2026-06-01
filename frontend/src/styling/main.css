@@ -1,0 +1,84 @@
+    @import url('./variables.css');
+    @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Coiny&family=Outfit:wght@100..900&family=Sigmar+One&display=swap');
+    @font-face {
+        font-family: 'Epika';
+        src: url('../assets/fonts/NT\ Epika\ Bold\ \(PERSONAL\ USE\).otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+    
+    body {
+        -webkit-tap-highlight-color: transparent;
+        font-family: 'Varela Round', sans-serif;
+        font-weight: 400;
+        background: var(--background-color);
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 0;
+        padding: 0;
+        font-weight: inherit;
+    }
+    
+    .logo {
+        font-family: "Outfit", sans-serif;
+        /* font-family: 'Epika', sans-serif; */
+        font-weight: 700;
+    }
+    
+    p,
+    li,
+    h1,
+    h2,
+    h3,
+    h4,
+    nav,
+    input,
+    select,
+    textarea,
+    button {
+        font-family: 'Varela Round', sans-serif;
+        font-weight: normal;
+    }
+    
+    h1 {
+        font-weight: 700;
+    }
+    
+    button {
+        user-select: none;
+        cursor: pointer;
+    }
+
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        padding-right: 2rem;
+    }
+    
+    a {
+        text-decoration: none;
+        color: inherit;
+        background: none;
+        border: none;
+        outline: none;
+    }

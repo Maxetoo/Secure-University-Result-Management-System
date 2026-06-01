@@ -1,0 +1,351 @@
+================================================================================
+        TECHNICAL REPORT — UNIVERSITY RESULT MANAGEMENT SYSTEM
+================================================================================
+Date: June 1, 2026
+Project Type: University Assignment — Full-Stack Web Application
+--------------------------------------------------------------------------------
+
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+The University Result Management System is a secure, full-stack web application
+designed to manage student academic results. It supports three distinct user
+roles — student, lecturer, and admin — each with specific access levels and
+functionality. The system was built against a formal assignment brief that
+specified exact API contracts, authentication requirements, and role-based
+access control (RBAC).
+
+The application is structured as a monorepo: an Express.js REST API backend
+with a React single-page application (SPA) frontend that is served as static
+files from the same Express server in production.
+
+
+2. TECHNOLOGY STACK
+--------------------------------------------------------------------------------
+BACKEND
+  - Runtime:       Node.js (CommonJS modules)
+  - Framework:     Express.js v4
+  - Database:      MongoDB via Mongoose v9
+  - Auth:          JSON Web Tokens (jsonwebtoken), Passport.js + Google OAuth 2.0
+  - File Storage:  Cloudinary (result document uploads — PDFs and images)
+  - Security:      Helmet, express-rate-limit, CORS, bcryptjs, express-mongo-sanitize
+  - Utilities:     express-async-errors, compression, morgan, cookie-parser,
+                   express-session, express-fileupload, http-status-codes
+
+FRONTEND
+  - Framework:     React v19 (Vite build tool)
+  - State:         Redux Toolkit + React-Redux
+  - Routing:       React Router DOM v7
+  - HTTP Client:   Axios (custom instance with interceptors)
+  - UI/Styling:    styled-components v6, Ant Design v6, lucide-react, react-icons
+  - Notifications: react-hot-toast
+  - PDF Export:    jspdf + jspdf-autotable
+  - Other:         moment.js, react-loading-skeleton, react-markdown, jodit-react
+
+
+3. SYSTEM ARCHITECTURE
+--------------------------------------------------------------------------------
+The application follows a standard MVC-style layered architecture:
+
+  Request --> Express Middleware Stack --> Routes --> Controllers --> Models
+                                                         |
+                                                    Cloudinary (file uploads)
+                                                    MongoDB (data persistence)
+
+In production, the Express server serves the compiled Vite frontend from
+`frontend/dist/` and handles client-side routing by returning `index.html` for
+any non-API GET request (`app.get('*', ...)`).
+
+Directory structure (key directories):
+  /app.js                  - Application entry point; middleware setup, DB connect
+  /configs/                - Cloudinary config, Passport.js Google OAuth strategy
+  /controllers/            - Business logic (auth, users, courses, departments, results)
+  /middlewares/            - JWT auth, error handler, 404 handler
+  /models/                 - Mongoose schemas (User, Course, Department, Result,
+                             CourseRegistration)
+  /routes/                 - Express route definitions
+  /helpers/                - JWT sign/verify utilities
+  /errors/                 - Custom error classes (BadRequest, NotFound,
+                             Unauthorized, Forbidden)
+  /frontend/src/
+    /pages/                - Route-level React components (auth pages, dashboard pages)
+    /components/           - Shared UI components (DashboardLayout, DashboardSidebar)
+    /slices/               - Redux Toolkit slices (auth, user, course, department, result)
+    /store/                - Redux store configuration
+    /utils/axiosInstance.js - Preconfigured Axios with auto-auth and token refresh
+    /helpers/              - Route guard components (AuthRoute, AdminRoute,
+                             HomeRedirectRoute, notification popups)
+    /paths/url.jsx         - Centralised URL path constants
+    /styling/              - Global CSS variables and base styles
+
+
+4. DATABASE MODELS
+--------------------------------------------------------------------------------
+4.1  User
+  Fields:      firstName, lastName, email (unique), password (hashed, select:false),
+               googleId (sparse), provider (local|google), role (student|lecturer|admin),
+               matricNumber (student, sparse, format: VUG/CSC/22/7410), level (100-600),
+               department (ref: Department), staffId (lecturer), isActive,
+               resetPasswordToken (select:false), resetPasswordExpiry (select:false)
+  Hooks:       pre-save bcryptjs password hashing (salt rounds: 10)
+  Methods:     comparePassword(), findOrCreateOAuthUser() (static)
+  Indexes:     email, role, department
+
+4.2  Result
+  Fields:      student (ref: User), course (ref: Course), semester (First|Second),
+               academicYear (format: 2023/2024), score (0-100), grade (A-F, auto-computed),
+               documentUrl, documentPublicId, remarks, uploadedBy (ref: User),
+               lastEditedBy (ref: User)
+  Hooks:       pre-save grade calculation from score:
+               >=70 → A, >=60 → B, >=50 → C, >=45 → D, >=40 → E, <40 → F
+  Indexes:     Compound unique index on (student, course, semester, academicYear)
+               to prevent duplicate entries
+
+4.3  Course
+  Fields:      courseCode (unique, format: CSC304), title, department (ref: Department),
+               level (100-600), lecturer (ref: User), isActive
+  Indexes:     courseCode, (department, level), lecturer
+
+4.4  Department
+  Fields:      name (unique), code (unique, uppercase), isActive
+  Indexes:     code, isActive
+
+4.5  CourseRegistration
+  Tracks which students are registered to which courses.
+
+
+5. AUTHENTICATION SYSTEM
+--------------------------------------------------------------------------------
+5.1  JWT-Based Auth (Primary)
+  - Access Token:   15-minute lifetime, signed with JWT_SECRET
+  - Refresh Token:  7-day lifetime, signed with JWT_REFRESH_SECRET
+  - Transport:      Bearer token in Authorization header (not cookies)
+  - Storage:        localStorage on the client (accessToken, refreshToken)
+  - Token payload:  { userId, role, firstName, lastName, email }
+
+  Token flow:
+    1. POST /api/login → returns { accessToken, refreshToken, user }
+    2. Axios request interceptor attaches token to every request header
+    3. Axios response interceptor catches 401 → calls POST /api/auth/refresh
+       with the stored refreshToken → gets new accessToken → retries original request
+    4. If refresh also fails → clears localStorage, redirects to /login
+
+5.2  Google OAuth 2.0
+  - Strategy:  passport-google-oauth20 via passport.js
+  - Callback:  /api/v1/auth/google/callback
+  - Logic:     findOrCreateOAuthUser() on User model
+               - If googleId match → return existing user
+               - If email match → link Google to existing local account
+               - Otherwise → create new user with role: student
+  - Frontend:  /auth/callback page handles the OAuth redirect and stores tokens
+
+5.3  Password Reset Flow
+  - POST /api/auth/forgot-password: generates a SHA-256 hashed reset token,
+    stores it with a 1-hour expiry on the user document
+  - POST /api/auth/reset-password: validates the token and expiry,
+    sets the new password (triggers pre-save hash)
+  - Response is always generic ("If that email exists...") to prevent enumeration
+
+
+6. API ENDPOINTS
+--------------------------------------------------------------------------------
+All API routes are mounted under /api.
+
+AUTH ROUTES  (no auth required unless noted)
+  POST   /api/register               Register student or lecturer
+  POST   /api/login                  Login; returns access + refresh tokens
+  POST   /api/auth/refresh           Refresh access token
+  POST   /api/auth/logout            Stateless logout (client discards tokens)
+  GET    /api/profile                [Auth] Get current user's profile
+  PATCH  /api/auth/update-password   [Auth] Change password
+  POST   /api/auth/forgot-password   Request password reset token
+  POST   /api/auth/reset-password    Reset password using token
+  POST   /api/users/create-admin     [Auth, Admin] Create admin account
+  GET    /api/v1/auth/google         Initiate Google OAuth
+  GET    /api/v1/auth/google/callback Google OAuth callback
+
+RESULT ROUTES  (/api/v1/results)
+  POST   /                           [Auth, Lecturer/Admin] Upload new result
+                                     (optional multipart document upload)
+  PATCH  /:id                        [Auth, Lecturer/Admin] Edit existing result
+  GET    /my                         [Auth, Student] View own results
+                                     (filterable by ?semester=&academicYear=)
+  GET    /                           [Auth, Lecturer/Admin] Get all results
+                                     Admin: all; Lecturer: only their courses
+                                     (filterable + searchable)
+  GET    /student/:studentId         [Auth, Lecturer/Admin] Get specific student's results
+  DELETE /:id                        [Auth, Admin] Delete a result
+
+COURSE ROUTES  (/api/v1/courses)
+  Standard CRUD — admin manages courses; lecturers and students can view
+
+DEPARTMENT ROUTES  (/api/v1/departments)
+  Standard CRUD — admin manages departments
+
+USER ROUTES  (/api/v1/users)
+  Admin: list/manage all users
+
+
+7. ROLE-BASED ACCESS CONTROL (RBAC)
+--------------------------------------------------------------------------------
+Three roles are enforced via middleware applied at the route level:
+
+  authentication            - Verifies Bearer JWT; attaches req.user to request
+  studentAuthorization      - Allows role === 'student' only
+  lecturerAuthorization     - Allows role === 'lecturer' only
+  adminAuthorization        - Allows role === 'admin' only
+  lecturerOrAdminAuthorization - Allows role === 'lecturer' or 'admin'
+
+Additionally, the result edit endpoint enforces object-level ownership:
+a lecturer can only edit results they uploaded or for courses assigned to them.
+
+Frontend route guards:
+  AuthRoute         - Redirects unauthenticated users to /login
+  AdminRoute        - Redirects non-admin users
+  HomeRedirectRoute - Redirects already-logged-in users away from auth pages
+
+
+8. CLOUDINARY FILE UPLOAD
+--------------------------------------------------------------------------------
+Lecturers can optionally attach a supporting document (result sheet) when
+uploading or editing a result. Handled by:
+
+  - express-fileupload: receives multipart form data, saves to /tmp/
+  - Allowed types: application/pdf, image/jpeg, image/png, image/webp
+  - Max size: 10 MB per file
+  - cloudinary.uploader.upload(): uploads from temp path to 'result-documents' folder
+  - Returns secure_url and public_id stored on the Result document
+  - On result edit: old document is deleted from Cloudinary before uploading new one
+    (cloudinary.uploader.destroy with resource_type: 'raw')
+  - Temp file is always cleaned up (fs.unlink in a finally block)
+
+
+9. SECURITY MEASURES
+--------------------------------------------------------------------------------
+  - Helmet:              Sets security-related HTTP headers
+  - Rate limiting:       200 requests per 15-minute window per IP
+  - CORS:                Restricted to FRONTEND_URL env var and res.cloudinary.com
+  - bcryptjs:            Passwords hashed with salt rounds = 10
+  - JWT secrets:         Separate secrets for access and refresh tokens
+  - select: false:       password, resetPasswordToken, resetPasswordExpiry fields
+                         are excluded from all queries by default
+  - express-async-errors: Catches unhandled promise rejections in controllers
+  - Custom error classes: Consistent HTTP status codes (400, 401, 403, 404)
+  - Password fields:     Minimum 8 characters enforced at model and controller level
+  - Token enumeration:   Forgot-password endpoint always returns same message
+  - Trust proxy:         app.set('trust proxy', 1) set for deployment behind proxies
+
+
+10. FRONTEND PAGES & COMPONENTS
+--------------------------------------------------------------------------------
+AUTH PAGES
+  /login               - Email/password login + "Continue with Google" link
+  /register            - Sign-up form (role-aware: student/lecturer fields)
+  /forgot-password     - Email input to request password reset
+  /reset-password      - New password + confirm password form (token from URL)
+  /auth/callback       - Handles Google OAuth redirect, stores tokens, redirects
+
+DASHBOARD (protected by AuthRoute, layout via DashboardLayout + DashboardSidebar)
+  /dashboard                - Overview/home page
+  /dashboard/results        - Student: view own results; others: redirected
+  /dashboard/results/upload - Lecturer/Admin: upload new result form
+  /dashboard/results/manage - Lecturer/Admin: manage (view/edit/delete) results
+  /dashboard/courses        - Course listing
+  /dashboard/departments    - Admin only (AdminRoute guard)
+  /dashboard/users          - User management
+  /dashboard/announcements  - Announcements page
+  /dashboard/settings/profile  - Profile settings
+  /dashboard/settings/account  - Account settings (password change)
+
+ERROR PAGE
+  /* → ErrorPage (404 / catch-all)
+
+
+11. REDUX STATE MANAGEMENT
+--------------------------------------------------------------------------------
+Five Redux Toolkit slices manage global state:
+
+  authSlice        - Login, register, logout, forgot/reset password actions
+  userSlice        - Current authenticated user, getCurrentUser async thunk,
+                     setInitialized action (controls app-level loading state)
+  courseSlice      - Course CRUD operations
+  departmentSlice  - Department CRUD operations
+  resultSlice      - Result upload, edit, fetch operations
+
+The app bootstraps authentication state in App.jsx:
+  - On mount, checks localStorage for tokens
+  - If tokens exist, dispatches getCurrentUser (GET /api/profile)
+  - If no tokens, dispatches setInitialized to unblock the UI
+
+
+12. MIDDLEWARE PIPELINE (REQUEST LIFECYCLE)
+--------------------------------------------------------------------------------
+Incoming request passes through in order:
+  1. Rate limiter (express-rate-limit)
+  2. Helmet (security headers)
+  3. CORS
+  4. express-fileupload (multipart parsing)
+  5. compression
+  6. express.json / express.urlencoded (body parsing, 15 MB limit)
+  7. cookie-parser
+  8. express-session
+  9. passport.initialize() + passport.session()
+  10. morgan (HTTP request logging)
+  11. Static file serving (frontend/dist)
+  12. API Router (/api)
+  13. SPA fallback (index.html for non-API routes)
+  14. NotFoundMiddleware (404 for unmatched API routes)
+  15. ErrorMiddleware (centralised error handler — maps custom errors to HTTP codes)
+
+
+13. DEPLOYMENT CONFIGURATION
+--------------------------------------------------------------------------------
+  - Backend serves frontend static files from frontend/dist/
+  - Vite outputs to frontend/dist/ on `npm run build`
+  - Environment variables required:
+      MONGODB_URI (or MONGO_URL)
+      JWT_SECRET
+      JWT_REFRESH_SECRET
+      COOKIE_SECRET
+      CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+      GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+      FRONTEND_URL
+      PORT (default: 8080)
+  - Frontend reads VITE_ORIGIN_URL for the API base URL
+
+
+14. SUMMARY OF WORK COMPLETED
+--------------------------------------------------------------------------------
+  [x] Express server setup with full production middleware stack
+  [x] MongoDB connection with Mongoose
+  [x] User model with bcryptjs hashing, role validation, matric/staff field logic,
+      Google OAuth support, and password reset token fields
+  [x] Course, Department, Result, CourseRegistration Mongoose models
+  [x] Custom error class hierarchy (BadRequest, NotFound, Unauthorized, Forbidden)
+  [x] JWT helper module (sign/verify for access and refresh tokens)
+  [x] Authentication middleware with five role-guard variants
+  [x] Auth controller: register, login, refresh, profile, logout,
+      update-password, forgot-password, reset-password, create-admin
+  [x] Result controller: upload, edit (with Cloudinary replace), getMyResults,
+      getAllResults (with lecturer scope filter), getStudentResults, deleteResult
+  [x] Course, Department, User controllers and routes
+  [x] Google OAuth 2.0 via Passport.js with find-or-create logic
+  [x] All routes wired under /api with correct RBAC middleware
+  [x] Express serves compiled Vite frontend as static files
+  [x] SPA catch-all route for client-side navigation
+  [x] React 19 + Vite frontend project
+  [x] Redux Toolkit store with five slices
+  [x] Axios instance with Bearer auth injection and automatic 401 token refresh
+  [x] React Router v7 route tree with nested dashboard routes
+  [x] AuthRoute, AdminRoute, HomeRedirectRoute guard components
+  [x] Auth pages: Login, SignUp, ForgotPassword, ResetPassword, AuthCallback
+  [x] Dashboard pages: Dashboard, Results, UploadResults, ResultsManage,
+      Courses, Departments, Users, Announcements, ProfileSettings, AccountSettings
+  [x] DashboardLayout and DashboardSidebar shared components
+  [x] Global CSS variables and styled-components theming
+  [x] Custom font assets (NT Epika family)
+  [x] App bootstrap: auto-rehydrates auth state from localStorage on mount
+
+================================================================================
+END OF REPORT
+================================================================================

@@ -1,0 +1,865 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "University Result Management System",
+    "description": "Complete API collection for the University Result Management System. Set the `baseUrl` variable to your server URL before testing. After running the Login request, `accessToken` and `refreshToken` are automatically stored as collection variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (Student)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"student\",\n  \"matricNumber\": \"VUG/CSC/22/7410\",\n  \"level\": 200,\n  \"departmentCode\": \"CSC\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Register a new student account. matricNumber format: VUG/CSC/22/7410. departmentCode is optional."
+          }
+        },
+        {
+          "name": "Register (Lecturer)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Dr. Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith@university.edu\",\n  \"password\": \"password123\",\n  \"role\": \"lecturer\",\n  \"staffId\": \"STAFF001\",\n  \"departmentCode\": \"CSC\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Register a new lecturer account. staffId is required for lecturers."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', res.accessToken);",
+                  "}",
+                  "if (res.refreshToken) {",
+                  "    pm.collectionVariables.set('refreshToken', res.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Login with email and password. On success, accessToken and refreshToken are automatically saved as collection variables."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', res.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "description": "Exchange a valid refresh token for a new access token. The new accessToken is automatically saved as a collection variable."
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profile"]
+            },
+            "description": "Get the currently authenticated user's profile. Requires Bearer token."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Stateless logout. Discard tokens on the client after calling this."
+          }
+        },
+        {
+          "name": "Update Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/update-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "update-password"]
+            },
+            "description": "Change the authenticated user's password. newPassword must be at least 8 characters."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "forgot-password"]
+            },
+            "description": "Request a password reset token. Always returns a generic success message to prevent email enumeration."
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"PASTE_RESET_TOKEN_HERE\",\n  \"newPassword\": \"newpassword789\",\n  \"confirmPassword\": \"newpassword789\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "reset-password"]
+            },
+            "description": "Reset password using the token received from the forgot-password endpoint. Token expires after 1 hour."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"]
+            },
+            "description": "Admin only. Returns all users in the system."
+          }
+        },
+        {
+          "name": "Get User Profile by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/profile/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "profile", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "PASTE_USER_ID_HERE"
+                }
+              ]
+            },
+            "description": "Get a user's profile by their MongoDB ID."
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"UpdatedFirst\",\n  \"lastName\": \"UpdatedLast\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/profile/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "profile", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "PASTE_USER_ID_HERE"
+                }
+              ]
+            },
+            "description": "Update a user's profile fields."
+          }
+        },
+        {
+          "name": "Get All Lecturers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/lecturers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "lecturers"]
+            },
+            "description": "Lecturer or Admin only. Returns all users with role=lecturer."
+          }
+        },
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "students"]
+            },
+            "description": "Lecturer or Admin only. Returns all users with role=student."
+          }
+        },
+        {
+          "name": "Create Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Super\",\n  \"lastName\": \"Admin\",\n  \"email\": \"admin@university.edu\",\n  \"password\": \"adminpassword123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/create-admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "create-admin"]
+            },
+            "description": "Admin only. Create a new admin account."
+          }
+        },
+        {
+          "name": "Admin Edit User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Edited\",\n  \"lastName\": \"Name\",\n  \"level\": 300,\n  \"matricNumber\": \"VUG/CSC/22/0001\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/:userId/admin-edit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", ":userId", "admin-edit"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "PASTE_USER_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Edit any user's details."
+          }
+        },
+        {
+          "name": "Deactivate User",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/:userId/deactivate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", ":userId", "deactivate"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "PASTE_USER_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Deactivate a user account (sets isActive = false)."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/:userId/delete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", ":userId", "delete"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "PASTE_USER_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Permanently delete a user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Departments",
+      "item": [
+        {
+          "name": "Get All Departments",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "departments"]
+            },
+            "description": "Public. Returns all active departments."
+          }
+        },
+        {
+          "name": "Get Department by ID",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/departments/:departmentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "departments", ":departmentId"],
+              "variable": [
+                {
+                  "key": "departmentId",
+                  "value": "PASTE_DEPARTMENT_ID_HERE"
+                }
+              ]
+            },
+            "description": "Public. Get a single department by its MongoDB ID."
+          }
+        },
+        {
+          "name": "Create Department (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Computer Science\",\n  \"code\": \"CSC\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "departments"]
+            },
+            "description": "Admin only. Create a new department. code must be unique and uppercase."
+          }
+        },
+        {
+          "name": "Update Department (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Computer Science & Engineering\",\n  \"code\": \"CSE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/departments/:departmentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "departments", ":departmentId"],
+              "variable": [
+                {
+                  "key": "departmentId",
+                  "value": "PASTE_DEPARTMENT_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Update department name or code."
+          }
+        },
+        {
+          "name": "Delete Department (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/departments/:departmentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "departments", ":departmentId"],
+              "variable": [
+                {
+                  "key": "departmentId",
+                  "value": "PASTE_DEPARTMENT_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Delete a department."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Get All Courses",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses"]
+            },
+            "description": "Public. Returns all active courses."
+          }
+        },
+        {
+          "name": "Get Course by ID",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses/:courseId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses", ":courseId"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "PASTE_COURSE_ID_HERE"
+                }
+              ]
+            },
+            "description": "Public. Get a single course by its MongoDB ID."
+          }
+        },
+        {
+          "name": "Get Courses by Lecturer",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses/lecturer/:lecturerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses", "lecturer", ":lecturerId"],
+              "variable": [
+                {
+                  "key": "lecturerId",
+                  "value": "PASTE_LECTURER_ID_HERE"
+                }
+              ]
+            },
+            "description": "Public. Returns all courses assigned to a specific lecturer."
+          }
+        },
+        {
+          "name": "Create Course (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseCode\": \"CSC304\",\n  \"title\": \"Data Structures and Algorithms\",\n  \"department\": \"PASTE_DEPARTMENT_ID_HERE\",\n  \"level\": 300\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses"]
+            },
+            "description": "Admin only. Create a new course. courseCode format: CSC304 (3 letters + 3 digits)."
+          }
+        },
+        {
+          "name": "Update Course (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced Data Structures\",\n  \"level\": 400\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses/:courseId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses", ":courseId"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "PASTE_COURSE_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Update course details."
+          }
+        },
+        {
+          "name": "Assign Lecturer to Course (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lecturerId\": \"PASTE_LECTURER_ID_HERE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses/:courseId/assign-lecturer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses", ":courseId", "assign-lecturer"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "PASTE_COURSE_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Assign a lecturer to a course."
+          }
+        },
+        {
+          "name": "Delete Course (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/courses/:courseId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "courses", ":courseId"],
+              "variable": [
+                {
+                  "key": "courseId",
+                  "value": "PASTE_COURSE_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Delete a course."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Results",
+      "item": [
+        {
+          "name": "Upload Result (Lecturer — JSON only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"PASTE_STUDENT_ID_HERE\",\n  \"courseId\": \"PASTE_COURSE_ID_HERE\",\n  \"semester\": \"First\",\n  \"academicYear\": \"2023/2024\",\n  \"score\": 75,\n  \"remarks\": \"Good performance\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results"]
+            },
+            "description": "Lecturer or Admin. Upload a result without a document attachment. Grade is auto-computed: >=70 A, >=60 B, >=50 C, >=45 D, >=40 E, <40 F."
+          }
+        },
+        {
+          "name": "Upload Result (Lecturer — with Document)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "studentId", "value": "PASTE_STUDENT_ID_HERE", "type": "text" },
+                { "key": "courseId", "value": "PASTE_COURSE_ID_HERE", "type": "text" },
+                { "key": "semester", "value": "First", "type": "text" },
+                { "key": "academicYear", "value": "2023/2024", "type": "text" },
+                { "key": "score", "value": "75", "type": "text" },
+                { "key": "remarks", "value": "Good performance", "type": "text" },
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": "",
+                  "description": "Optional PDF or image (max 10 MB)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results"]
+            },
+            "description": "Lecturer or Admin. Upload a result with an optional document attached (PDF, JPEG, PNG, WEBP — max 10 MB). File is stored on Cloudinary."
+          }
+        },
+        {
+          "name": "Get My Results (Student)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results/my?semester=First&academicYear=2023/2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results", "my"],
+              "query": [
+                { "key": "semester", "value": "First", "description": "Optional filter: First or Second" },
+                { "key": "academicYear", "value": "2023/2024", "description": "Optional filter: e.g. 2023/2024" }
+              ]
+            },
+            "description": "Student only. Returns the logged-in student's results. Both query params are optional filters."
+          }
+        },
+        {
+          "name": "Get All Results (Admin / Lecturer)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results?semester=First&academicYear=2023/2024&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results"],
+              "query": [
+                { "key": "studentId", "value": "", "description": "Optional: filter by student ID", "disabled": true },
+                { "key": "courseId", "value": "", "description": "Optional: filter by course ID", "disabled": true },
+                { "key": "semester", "value": "First", "description": "Optional: First or Second" },
+                { "key": "academicYear", "value": "2023/2024", "description": "Optional: e.g. 2023/2024" },
+                { "key": "search", "value": "", "description": "Optional: search by student name, matric number, or course code" }
+              ]
+            },
+            "description": "Admin: returns all results. Lecturer: returns only results for their assigned courses. All query params are optional."
+          }
+        },
+        {
+          "name": "Get Results for a Specific Student",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results/student/:studentId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results", "student", ":studentId"],
+              "variable": [
+                {
+                  "key": "studentId",
+                  "value": "PASTE_STUDENT_ID_HERE"
+                }
+              ]
+            },
+            "description": "Lecturer or Admin only. Returns all results for a specific student by their MongoDB user ID."
+          }
+        },
+        {
+          "name": "Edit Result (Lecturer — JSON only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 82,\n  \"remarks\": \"Revised after re-marking\",\n  \"semester\": \"First\",\n  \"academicYear\": \"2023/2024\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results/:resultId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results", ":resultId"],
+              "variable": [
+                {
+                  "key": "resultId",
+                  "value": "PASTE_RESULT_ID_HERE"
+                }
+              ]
+            },
+            "description": "Lecturer or Admin. Update a result's score, remarks, semester, or academicYear. Grade is auto-recomputed from the new score. Lecturer can only edit results they uploaded or for courses they are assigned to."
+          }
+        },
+        {
+          "name": "Edit Result (Lecturer — Replace Document)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "score", "value": "82", "type": "text" },
+                { "key": "remarks", "value": "Revised after re-marking", "type": "text" },
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": "",
+                  "description": "New PDF or image to replace the existing document"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results/:resultId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results", ":resultId"],
+              "variable": [
+                {
+                  "key": "resultId",
+                  "value": "PASTE_RESULT_ID_HERE"
+                }
+              ]
+            },
+            "description": "Lecturer or Admin. Edit a result and replace its Cloudinary document in one request. The old document is deleted from Cloudinary automatically."
+          }
+        },
+        {
+          "name": "Delete Result (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/results/:resultId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "results", ":resultId"],
+              "variable": [
+                {
+                  "key": "resultId",
+                  "value": "PASTE_RESULT_ID_HERE"
+                }
+              ]
+            },
+            "description": "Admin only. Permanently delete a result. If a Cloudinary document is attached, it is also deleted from Cloudinary."
+          }
+        }
+      ]
+    }
+  ]
+}

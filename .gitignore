@@ -1,0 +1,7 @@
+.api/apis/didit-tdmi/node_modules
+/node_modules
+/.api/didit-tdmi/node_modules
+/.api/didit-tdmi/.env
+.env
+db.json
+myapp.tar.gz

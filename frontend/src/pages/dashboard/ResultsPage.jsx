@@ -1,0 +1,356 @@
+import { useEffect, useRef, useState } from 'react'
+import styled from 'styled-components'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchMyResults } from '../../slices/resultSlice'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
+const gradeColor = (grade) => {
+    const map = { A: '#16a34a', B: '#2563eb', C: '#d97706', D: '#9333ea', E: '#f97316', F: '#dc2626' }
+    return map[grade] || '#6b7280'
+}
+
+const ResultsPage = () => {
+    const dispatch = useDispatch()
+    const { myResults, myResultsLoad, myResultsError } = useSelector((s) => s.result)
+    const { user } = useSelector((s) => s.user)
+    const [semester, setSemester] = useState('')
+    const [academicYear, setAcademicYear] = useState('')
+
+    const yearDebounce = useRef(null)
+    useEffect(() => {
+        clearTimeout(yearDebounce.current)
+        yearDebounce.current = setTimeout(() => {
+            dispatch(fetchMyResults({ semester: semester || undefined, academicYear: academicYear || undefined }))
+        }, academicYear ? 400 : 0)
+        return () => clearTimeout(yearDebounce.current)
+    }, [dispatch, semester, academicYear])
+
+    const downloadPDF = () => {
+        const doc = new jsPDF()
+        const pageWidth = doc.internal.pageSize.getWidth()
+
+        // ── Header ──
+        doc.setFontSize(20)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(30, 64, 175)
+        doc.text('UNIRESULT', pageWidth / 2, 22, { align: 'center' })
+
+        doc.setFontSize(10)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(100)
+        doc.text('Student Result Transcript', pageWidth / 2, 30, { align: 'center' })
+
+        doc.setDrawColor(200)
+        doc.setLineWidth(0.4)
+        doc.line(14, 35, pageWidth - 14, 35)
+
+        // ── Student info ──
+        doc.setFontSize(9)
+        doc.setTextColor(50)
+
+        const leftCol = 14
+        const rightCol = pageWidth / 2 + 5
+        let y = 43
+
+        doc.setFont('helvetica', 'bold')
+        doc.text('Student Name:', leftCol, y)
+        doc.setFont('helvetica', 'normal')
+        doc.text(`${user?.firstName || ''} ${user?.lastName || ''}`, leftCol + 32, y)
+
+        doc.setFont('helvetica', 'bold')
+        doc.text('Matric No.:', rightCol, y)
+        doc.setFont('helvetica', 'normal')
+        doc.text(user?.matricNumber || '—', rightCol + 25, y)
+
+        y += 8
+        doc.setFont('helvetica', 'bold')
+        doc.text('Department:', leftCol, y)
+        doc.setFont('helvetica', 'normal')
+        doc.text(user?.department?.name || '—', leftCol + 32, y)
+
+        doc.setFont('helvetica', 'bold')
+        doc.text('Level:', rightCol, y)
+        doc.setFont('helvetica', 'normal')
+        doc.text(user?.level ? `${user.level} Level` : '—', rightCol + 25, y)
+
+        y += 8
+        doc.setFont('helvetica', 'bold')
+        doc.text('Date Generated:', leftCol, y)
+        doc.setFont('helvetica', 'normal')
+        doc.text(
+            new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
+            leftCol + 32, y
+        )
+
+        if (semester || academicYear) {
+            y += 8
+            doc.setFont('helvetica', 'bold')
+            doc.text('Filter Applied:', leftCol, y)
+            doc.setFont('helvetica', 'normal')
+            const filterText = [semester && `${semester} Semester`, academicYear].filter(Boolean).join(' • ')
+            doc.text(filterText, leftCol + 32, y)
+        }
+
+        // ── Results table ──
+        autoTable(doc, {
+            startY: y + 10,
+            head: [['Course Code', 'Course Title', 'Semester', 'Academic Year', 'Score', 'Grade']],
+            body: myResults.map((r) => [
+                r.course?.courseCode || '—',
+                r.course?.title || '—',
+                r.semester,
+                r.academicYear,
+                r.score,
+                r.grade,
+            ]),
+            styles: { fontSize: 9, cellPadding: 4 },
+            headStyles: {
+                fillColor: [30, 64, 175],
+                textColor: 255,
+                fontStyle: 'bold',
+                fontSize: 9,
+            },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            columnStyles: {
+                0: { fontStyle: 'bold', cellWidth: 28 },
+                5: { fontStyle: 'bold', halign: 'center', cellWidth: 16 },
+            },
+        })
+
+        // ── Summary row ──
+        const finalY = doc.lastAutoTable.finalY + 6
+        doc.setFontSize(9)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(50)
+        doc.text(`Total Results: ${myResults.length}`, 14, finalY)
+
+        // ── Footer on every page ──
+        const pageCount = doc.internal.getNumberOfPages()
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i)
+            doc.setFontSize(8)
+            doc.setTextColor(160)
+            doc.setFont('helvetica', 'normal')
+            doc.text(
+                `Generated by Uniresult  •  Page ${i} of ${pageCount}`,
+                pageWidth / 2,
+                doc.internal.pageSize.getHeight() - 10,
+                { align: 'center' }
+            )
+        }
+
+        const name = `${user?.firstName || 'student'}_${user?.lastName || ''}_results`.replace(/\s+/g, '_')
+        doc.save(`${name}.pdf`)
+    }
+
+    return (
+        <Wrapper>
+            <PageHeader>
+                <h1>My Results</h1>
+                <Controls>
+                    <Filters>
+                        <select value={semester} onChange={(e) => setSemester(e.target.value)}>
+                            <option value="">All Semesters</option>
+                            <option value="First">First Semester</option>
+                            <option value="Second">Second Semester</option>
+                        </select>
+                        <input
+                            type="text"
+                            placeholder="Academic Year (e.g. 2023/2024)"
+                            value={academicYear}
+                            onChange={(e) => setAcademicYear(e.target.value)}
+                        />
+                    </Filters>
+                    {myResults.length > 0 && (
+                        <DownloadBtn onClick={downloadPDF}>
+                            Download PDF
+                        </DownloadBtn>
+                    )}
+                </Controls>
+            </PageHeader>
+
+            {myResultsLoad && <StatusMsg>Loading results...</StatusMsg>}
+            {myResultsError && (
+                <ErrorMsg>
+                    Failed to load results.{' '}
+                    <RetryBtn onClick={() => dispatch(fetchMyResults({ semester: semester || undefined, academicYear: academicYear || undefined }))}>
+                        Retry
+                    </RetryBtn>
+                </ErrorMsg>
+            )}
+
+            {!myResultsLoad && myResults.length === 0 && (
+                <EmptyState>No results found for the selected filters.</EmptyState>
+            )}
+
+            {myResults.length > 0 && (
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Title</th>
+                            <th>Semester</th>
+                            <th>Academic Year</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                            <th>Document</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {myResults.map((r) => (
+                            <tr key={r._id}>
+                                <td><strong>{r.course?.courseCode || '—'}</strong></td>
+                                <td>{r.course?.title || '—'}</td>
+                                <td>{r.semester}</td>
+                                <td>{r.academicYear}</td>
+                                <td>{r.score}</td>
+                                <td>
+                                    <GradeBadge $color={gradeColor(r.grade)}>{r.grade}</GradeBadge>
+                                </td>
+                                <td>
+                                    {r.documentUrl
+                                        ? <a href={r.documentUrl} target="_blank" rel="noreferrer">View</a>
+                                        : '—'}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
+        </Wrapper>
+    )
+}
+
+const Wrapper = styled.div``
+
+const PageHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    h1 { font-size: 1.5rem; color: var(--text-color); margin: 0; }
+`
+
+const Controls = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+`
+
+const Filters = styled.div`
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+
+    select, input {
+        height: 40px;
+        padding: 0 0.75rem;
+        border: 1px solid var(--stroke-color);
+        border-radius: 8px;
+        font-size: 0.9em;
+        outline: none;
+        background-color: white;
+
+        &:focus { border-color: var(--primary-color); }
+    }
+    select { padding-right: 2rem; }
+`
+
+const DownloadBtn = styled.button`
+    height: 40px;
+    padding: 0 1.25rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    &:hover { opacity: 0.88; }
+`
+
+const Table = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+    th, td {
+        padding: 0.875rem 1rem;
+        text-align: left;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    th {
+        background: #f9fafb;
+        color: var(--light-text-color);
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f9fafb; }
+
+    a { color: var(--primary-color); text-decoration: underline; font-size: 0.85rem; }
+`
+
+const GradeBadge = styled.span`
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: ${(p) => p.$color};
+    background: ${(p) => p.$color}18;
+`
+
+const StatusMsg = styled.p`
+    color: var(--light-text-color);
+    padding: 2rem 0;
+    text-align: center;
+`
+
+const ErrorMsg = styled.p`
+    color: #dc2626;
+    background: #fff0f0;
+    border-left: 3px solid #dc2626;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+`
+
+const RetryBtn = styled.button`
+    background: none;
+    border: 1px solid #dc2626;
+    color: #dc2626;
+    border-radius: 6px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    &:hover { background: #dc262618; }
+`
+
+const EmptyState = styled.div`
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--light-text-color);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+`
+
+export default ResultsPage
