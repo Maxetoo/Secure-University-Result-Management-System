@@ -11,7 +11,7 @@ const UploadResultsPage = () => {
     const { students } = useSelector((s) => s.user)
     const { courses } = useSelector((s) => s.course)
 
-    const [mode, setMode] = useState('upload') // 'upload' | 'edit'
+    const [mode, setMode] = useState('upload')
     const [editingId, setEditingId] = useState(null)
     const [selectedStudent, setSelectedStudent] = useState('')
     const fileRef = useRef(null)
@@ -223,41 +223,57 @@ const UploadResultsPage = () => {
 }
 
 const Wrapper = styled.div``
+
 const PageHeader = styled.div`
     display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;
     h1 { font-size: 1.5rem; color: var(--text-color); margin: 0; }
 `
+
 const Card = styled.div`
-    background: white; border-radius: 12px; padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;
+    background: var(--white-color);
+    border: 1px solid var(--stroke-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    margin-bottom: 2rem;
 
     label { display: flex; flex-direction: column; gap: 0.4rem; span { font-size: 0.85rem; color: var(--light-text-color); font-weight: 600; } }
 
     input, select, textarea {
         width: 100%; padding: 0.6rem 0.9rem; border: 1px solid var(--stroke-color);
         border-radius: 8px; font-size: 0.95em; outline: none; box-sizing: border-box;
+        transition: border-color 0.2s;
         &:focus { border-color: var(--primary-color); }
     }
     select { padding-right: 2rem; }
     textarea { resize: vertical; }
     input[type="file"] { padding: 0.4rem 0.5rem; }
 `
+
 const Row = styled.div`
     display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;
 `
+
 const InfoLine = styled.p`
     font-size: 0.9rem; color: var(--light-text-color); margin-bottom: 1rem;
+    strong { color: var(--text-color); }
 `
+
 const SubmitBtn = styled.button`
     margin-top: 1rem; padding: 0.7rem 2rem; background: var(--primary-color); color: white;
     border: none; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer;
+    transition: opacity 0.2s;
     &:disabled { opacity: 0.7; cursor: not-allowed; }
+    &:hover:not(:disabled) { opacity: 0.9; }
 `
+
 const CancelBtn = styled.button`
-    padding: 0.5rem 1.25rem; border: 1px solid #dc2626; color: #dc2626;
+    padding: 0.5rem 1.25rem; border: 1px solid var(--error-color); color: var(--error-color);
     background: transparent; border-radius: 8px; cursor: pointer; font-size: 0.9em;
-    &:hover { background: #fff0f0; }
+    transition: background 0.2s;
+    &:hover { background: rgba(248, 113, 113, 0.1); }
 `
+
 const SectionTitle = styled.div`
     display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;
     font-size: 1.1rem; font-weight: 600; color: var(--text-color);
@@ -267,26 +283,32 @@ const SectionTitle = styled.div`
         &:focus { border-color: var(--primary-color); }
     }
 `
+
 const Table = styled.table`
-    width: 100%; border-collapse: collapse; background: white;
-    border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    th, td { padding: 0.875rem 1rem; text-align: left; font-size: 0.9rem; border-bottom: 1px solid #f3f4f6; }
-    th { background: #f9fafb; color: var(--light-text-color); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+    width: 100%; border-collapse: collapse; background: var(--white-color);
+    border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: 1px solid var(--stroke-color);
+    th, td { padding: 0.875rem 1rem; text-align: left; font-size: 0.9rem; border-bottom: 1px solid var(--stroke-color); color: var(--text-color); }
+    th { background: var(--secondary-color); color: var(--light-text-color); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: #f9fafb; }
+    tbody tr:hover td { background: rgba(99, 102, 241, 0.05); }
 `
+
 const EditBtn = styled.button`
     padding: 0.3rem 0.75rem; background: var(--primary-color); color: white;
     border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
+    transition: opacity 0.2s;
     &:hover { opacity: 0.85; }
 `
+
 const ErrorBanner = styled.p`
-    margin-bottom: 1rem; padding: 0.75rem 1rem; background: #fff0f0;
-    border-left: 3px solid #dc2626; border-radius: 8px; color: #dc2626; font-size: 0.9em;
+    margin-bottom: 1rem; padding: 0.75rem 1rem; background: rgba(248, 113, 113, 0.1);
+    border-left: 3px solid var(--error-color); border-radius: 8px; color: var(--error-color); font-size: 0.9em;
 `
+
 const SuccessBanner = styled.p`
-    margin-bottom: 1rem; padding: 0.75rem 1rem; background: #f0fff4;
-    border-left: 3px solid #16a34a; border-radius: 8px; color: #16a34a; font-size: 0.9em;
+    margin-bottom: 1rem; padding: 0.75rem 1rem; background: rgba(52, 211, 153, 0.1);
+    border-left: 3px solid var(--success-color); border-radius: 8px; color: var(--success-color); font-size: 0.9em;
 `
 
 export default UploadResultsPage

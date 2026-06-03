@@ -10,8 +10,8 @@ const DashboardLayout = () => {
 
   return (
     <Wrapper>
-      <DashboardSidebar 
-        isCollapsed={isCollapsed} 
+      <DashboardSidebar
+        isCollapsed={isCollapsed}
         toggleSidebar={() => setIsCollapsed(!isCollapsed)}
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
@@ -22,7 +22,7 @@ const DashboardLayout = () => {
             <Menu size={24} />
           </MobileMenuButton>
           <Logo>
-            <Link to="/dashboard">uniresult</Link>
+            <Link to="/dashboard">ResultChecker</Link>
           </Logo>
           <Spacer />
         </MobileHeader>
@@ -37,7 +37,7 @@ const DashboardLayout = () => {
 const Wrapper = styled.div`
   display: flex;
   min-height: 100vh;
-  background: #f9fafb;
+  background: var(--background-color);
   position: relative;
 `;
 
@@ -58,15 +58,15 @@ const MainContent = styled.main`
 
 const MobileHeader = styled.div`
   display: none;
-  
+
   @media (max-width: 768px) {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 70px;
     padding: 0 1rem;
-    background: var(--white-color);
-    border-bottom: 1px solid #eee;
+    background: var(--secondary-color);
+    border-bottom: 1px solid var(--stroke-color);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -86,20 +86,17 @@ const MobileMenuButton = styled.button`
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover {
-    background: #f3f4f6;
-  }
-
-  &:active {
-    background: #e5e7eb;
-  }
+  &:hover { background: rgba(99, 102, 241, 0.1); }
+  &:active { background: rgba(99, 102, 241, 0.15); }
 `;
 
 const Logo = styled.h2`
-  font-size: 1.25rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
   color: var(--primary-color);
-  font-weight: 700;
   margin: 0;
+  letter-spacing: -0.01em;
 
   a {
     color: inherit;

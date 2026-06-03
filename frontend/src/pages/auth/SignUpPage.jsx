@@ -42,7 +42,7 @@ const SignUpPage = () => {
 
     return (
         <Wrapper>
-            <LogoText>UniResult</LogoText>
+            <LogoText>ResultChecker</LogoText>
             <h2>Create Account</h2>
 
             {error && <ErrorBanner>{errorMsg || 'An error occurred'}</ErrorBanner>}
@@ -186,17 +186,20 @@ const Wrapper = styled.div`
         height: 50px;
         padding: 0 1rem;
         margin-top: 0.5rem;
-        border: solid 1px var(--stroke-color);
+        border: 1px solid var(--stroke-color);
         border-radius: 10px;
         font-size: 1em;
         outline: none;
         box-sizing: border-box;
-        background-color: white;
+        transition: border-color 0.2s;
     }
 
     select { padding-right: 2rem; }
 
-    input:focus, select:focus { border-color: var(--primary-color); }
+    input:focus, select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
 
     button[type='submit'] {
         width: 100%;
@@ -208,9 +211,15 @@ const Wrapper = styled.div`
         border: none;
         background: var(--primary-color);
         border-radius: 10px;
-        color: var(--white-color);
+        color: #ffffff;
         margin-top: 2rem;
         cursor: pointer;
+        transition: opacity 0.2s, transform 0.1s;
+
+        &:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
 
         &.btn_load { opacity: 0.7; cursor: not-allowed; }
     }
@@ -228,10 +237,11 @@ const Wrapper = styled.div`
 `
 
 const LogoText = styled.h1`
-    font-family: 'Cinzel Decorative', serif;
+    font-family: 'Outfit', sans-serif;
     font-size: 2rem;
+    font-weight: 800;
     color: var(--primary-color);
-    letter-spacing: 0.02em;
+    letter-spacing: -0.02em;
     margin-bottom: 0.25rem;
 `
 
@@ -265,10 +275,10 @@ const ErrorBanner = styled.p`
     margin-top: 1rem;
     width: 90%;
     padding: 0.75rem 1rem;
-    background: #fff0f0;
-    border-left: 3px solid #dc2626;
+    background: rgba(248, 113, 113, 0.1);
+    border-left: 3px solid var(--error-color);
     border-radius: 8px;
-    color: #dc2626;
+    color: var(--error-color);
     font-size: 0.9em;
     @media only screen and (min-width: 768px) { width: 60%; }
     @media only screen and (min-width: 992px) { width: 42%; }
@@ -278,12 +288,12 @@ const SuccessBanner = styled.p`
     margin-top: 1rem;
     width: 90%;
     padding: 0.75rem 1rem;
-    background: #f0fff4;
-    border-left: 3px solid #16a34a;
+    background: rgba(52, 211, 153, 0.1);
+    border-left: 3px solid var(--success-color);
     border-radius: 8px;
-    color: #16a34a;
+    color: var(--success-color);
     font-size: 0.9em;
-    a { color: #16a34a; font-weight: 600; }
+    a { color: var(--success-color); font-weight: 600; }
     @media only screen and (min-width: 768px) { width: 60%; }
     @media only screen and (min-width: 992px) { width: 42%; }
 `
@@ -318,14 +328,17 @@ const GoogleBtn = styled.button`
     margin-top: 0.75rem;
     border: 1px solid var(--stroke-color);
     border-radius: 10px;
-    background: white;
+    background: var(--white-color);
     font-size: 1em;
     font-weight: 500;
     color: var(--text-color);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.2s, border-color 0.2s;
 
-    &:hover { background: #f9fafb; }
+    &:hover {
+        background: #252b3b;
+        border-color: #3a4060;
+    }
 
     @media only screen and (min-width: 768px) { width: 60%; }
     @media only screen and (min-width: 992px) { width: 42%; }

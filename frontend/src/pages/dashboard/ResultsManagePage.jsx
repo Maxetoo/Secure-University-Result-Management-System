@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchAllResults, deleteResult, editResult, clearResultNotifications } from '../../slices/resultSlice'
 
 const gradeColor = (grade) => {
-    const map = { A: '#16a34a', B: '#2563eb', C: '#d97706', D: '#9333ea', E: '#f97316', F: '#dc2626' }
-    return map[grade] || '#6b7280'
+    const map = { A: '#22c55e', B: '#3b82f6', C: '#f59e0b', D: '#a855f7', E: '#f97316', F: '#ef4444' }
+    return map[grade] || '#8892a4'
 }
 
 const BLANK_EDIT = { score: '', semester: 'First', academicYear: '', remarks: '' }
@@ -54,12 +54,7 @@ const ResultsManagePage = () => {
     const openEdit = (r) => {
         dispatch(clearResultNotifications())
         setEditTarget(r)
-        setEditForm({
-            score: r.score,
-            semester: r.semester,
-            academicYear: r.academicYear,
-            remarks: r.remarks || '',
-        })
+        setEditForm({ score: r.score, semester: r.semester, academicYear: r.academicYear, remarks: r.remarks || '' })
     }
 
     const closeEdit = () => {
@@ -163,7 +158,6 @@ const ResultsManagePage = () => {
                 </Table>
             )}
 
-            {/* Edit Modal */}
             {editTarget && (
                 <Overlay onClick={closeEdit}>
                     <Modal onClick={(e) => e.stopPropagation()}>
@@ -229,7 +223,6 @@ const ResultsManagePage = () => {
                 </Overlay>
             )}
 
-            {/* Delete Confirm */}
             {confirmDelete && (
                 <Overlay onClick={() => setConfirmDelete(null)}>
                     <ConfirmBox onClick={(e) => e.stopPropagation()}>
@@ -247,112 +240,143 @@ const ResultsManagePage = () => {
 }
 
 const Wrapper = styled.div``
+
 const PageHeader = styled.div`
     display: flex; justify-content: space-between; align-items: flex-start;
     flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;
     h1 { font-size: 1.5rem; color: var(--text-color); margin: 0; }
 `
+
 const Filters = styled.div`
     display: flex; gap: 0.75rem; flex-wrap: wrap;
     input, select {
         height: 40px; padding: 0 0.75rem; border: 1px solid var(--stroke-color);
-        border-radius: 8px; font-size: 0.9em; outline: none; background-color: white;
+        border-radius: 8px; font-size: 0.9em; outline: none;
+        transition: border-color 0.2s;
         &:focus { border-color: var(--primary-color); }
     }
     select { padding-right: 2rem; }
     input { min-width: 200px; }
 `
+
 const Summary = styled.p`font-size: 0.85rem; color: var(--light-text-color); margin-bottom: 1rem;`
+
 const Table = styled.table`
-    width: 100%; border-collapse: collapse; background: white;
-    border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    th, td { padding: 0.75rem 0.875rem; text-align: left; font-size: 0.85rem; border-bottom: 1px solid #f3f4f6; }
-    th { background: #f9fafb; color: var(--light-text-color); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+    width: 100%; border-collapse: collapse; background: var(--white-color);
+    border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: 1px solid var(--stroke-color);
+    th, td { padding: 0.75rem 0.875rem; text-align: left; font-size: 0.85rem; border-bottom: 1px solid var(--stroke-color); color: var(--text-color); }
+    th { background: var(--secondary-color); color: var(--light-text-color); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: #f9fafb; }
-    code { font-family: monospace; background: #f3f4f6; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; }
+    tbody tr:hover td { background: rgba(99, 102, 241, 0.05); }
+    code { font-family: monospace; background: rgba(255,255,255,0.07); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; color: var(--light-text-color); }
     a { color: var(--primary-color); font-size: 0.8rem; }
 `
+
 const GradeBadge = styled.span`
     display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px;
     font-weight: 700; font-size: 0.85rem;
-    color: ${(p) => p.$color}; background: ${(p) => p.$color}18;
+    color: ${(p) => p.$color}; background: ${(p) => p.$color}22;
 `
+
 const ActionGroup = styled.div`display: flex; gap: 0.4rem;`
+
 const EditBtn = styled.button`
     padding: 0.3rem 0.65rem; background: var(--primary-color); color: white;
     border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
+    transition: opacity 0.2s;
     &:hover { opacity: 0.85; }
 `
+
 const DeleteBtn = styled.button`
-    padding: 0.3rem 0.65rem; background: #fff0f0; color: #dc2626;
-    border: 1px solid #fca5a5; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
-    &:hover { background: #fecaca; }
+    padding: 0.3rem 0.65rem; background: rgba(248, 113, 113, 0.12); color: var(--error-color);
+    border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 6px; font-size: 0.8rem; cursor: pointer;
+    transition: background 0.2s;
+    &:hover { background: rgba(248, 113, 113, 0.2); }
 `
+
 const StatusMsg = styled.p`color: var(--light-text-color); padding: 2rem 0; text-align: center;`
+
 const ErrorMsg = styled.p`
-    color: #dc2626; background: #fff0f0; border-left: 3px solid #dc2626;
+    color: var(--error-color); background: rgba(248, 113, 113, 0.1); border-left: 3px solid var(--error-color);
     padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9em;
 `
+
 const EmptyState = styled.div`
     text-align: center; padding: 4rem 2rem; color: var(--light-text-color);
-    background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background: var(--white-color); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: 1px solid var(--stroke-color);
 `
+
 const Overlay = styled.div`
-    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.65);
     display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
+    backdrop-filter: blur(3px);
 `
+
 const Modal = styled.div`
-    background: white; border-radius: 14px; padding: 1.75rem;
-    width: 100%; max-width: 480px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    background: var(--white-color); border-radius: 14px; padding: 1.75rem;
+    width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border: 1px solid var(--stroke-color);
     max-height: 90vh; overflow-y: auto;
 
     input, select, textarea {
         width: 100%; padding: 0.55rem 0.85rem; border: 1px solid var(--stroke-color);
-        border-radius: 8px; font-size: 0.9em; outline: none; background-color: white;
-        box-sizing: border-box;
+        border-radius: 8px; font-size: 0.9em; outline: none;
+        box-sizing: border-box; transition: border-color 0.2s;
         &:focus { border-color: var(--primary-color); }
     }
     select { padding-right: 2rem; }
     textarea { resize: vertical; }
 `
+
 const ModalHeader = styled.div`
     display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;
     h2 { font-size: 1.1rem; font-weight: 700; color: var(--text-color); margin: 0 0 0.2rem; }
 `
+
 const ModalSub = styled.p`font-size: 0.8rem; color: var(--light-text-color); margin: 0;`
+
 const CloseBtn = styled.button`
     background: none; border: none; font-size: 1rem; cursor: pointer;
     color: var(--light-text-color); padding: 0.2rem 0.4rem; flex-shrink: 0;
     &:hover { color: var(--text-color); }
 `
+
 const ModalRow = styled.div`display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;`
+
 const ModalField = styled.div`
     display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.75rem;
     label { font-size: 0.8rem; font-weight: 600; color: var(--light-text-color); }
 `
+
 const ModalActions = styled.div`display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;`
+
 const CancelBtn = styled.button`
     padding: 0.55rem 1.25rem; border: 1px solid var(--stroke-color);
-    background: white; border-radius: 8px; cursor: pointer; font-size: 0.9em;
-    &:hover { background: #f9fafb; }
+    background: transparent; border-radius: 8px; cursor: pointer; font-size: 0.9em;
+    color: var(--text-color); transition: background 0.2s;
+    &:hover { background: rgba(99, 102, 241, 0.08); }
 `
+
 const SaveBtn = styled.button`
     padding: 0.55rem 1.5rem; background: var(--primary-color); color: white;
     border: none; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer;
+    transition: opacity 0.2s;
     &:disabled { opacity: 0.7; cursor: not-allowed; }
 `
+
 const ConfirmBox = styled.div`
-    background: white; border-radius: 12px; padding: 2rem; max-width: 400px; width: 90%;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    background: var(--white-color); border-radius: 12px; padding: 2rem; max-width: 400px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid var(--stroke-color);
     h3 { margin: 0 0 0.5rem; color: var(--text-color); }
     p { color: var(--light-text-color); margin-bottom: 1.5rem; font-size: 0.95rem; }
     div { display: flex; gap: 0.75rem; }
     button {
         flex: 1; padding: 0.6rem; border: none; border-radius: 8px;
-        font-size: 0.95em; font-weight: 600; cursor: pointer;
-        &.danger { background: #dc2626; color: white; &:hover { background: #b91c1c; } }
-        &:not(.danger) { background: #f3f4f6; color: var(--text-color); &:hover { background: #e5e7eb; } }
+        font-size: 0.95em; font-weight: 600; cursor: pointer; transition: background 0.2s;
+        &.danger { background: #ef4444; color: white; &:hover { background: #dc2626; } }
+        &:not(.danger) { background: var(--stroke-color); color: var(--text-color); &:hover { background: #3a4060; } }
     }
 `
 

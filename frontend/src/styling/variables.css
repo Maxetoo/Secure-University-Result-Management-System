@@ -1,21 +1,21 @@
 :root {
     /* colors */
-    --background-color: #fffffe;
-    --primary-color: #0C75AF;
-    --secondary-color: #F8F9FB;
-    --highlight-color: #674636;
-    --stroke-color: #000000;
-    --white-color: #ffffff;
-    --text-color: #24273A;
-    --light-text-color: #676E8B;
-    --error-color: #e74c3c;
-    --warning-color: #f39c12;
-    --success-color: #27ae60;
-    --color-shadow: rgba(0, 0, 0, 0.1);
-    --primary-text-color: #313131;
-    --header-text-color: #616161;
-    --color-info: #3498db;
-    --color-text-secondary: #6c757d;
+    --background-color: #0d1117;
+    --primary-color: #6366f1;
+    --secondary-color: #161b27;
+    --highlight-color: #818cf8;
+    --stroke-color: #2a3147;
+    --white-color: #1c2236;
+    --text-color: #e2e8f0;
+    --light-text-color: #8892a4;
+    --error-color: #f87171;
+    --warning-color: #fbbf24;
+    --success-color: #34d399;
+    --color-shadow: rgba(0, 0, 0, 0.45);
+    --primary-text-color: #e2e8f0;
+    --header-text-color: #94a3b8;
+    --color-info: #60a5fa;
+    --color-text-secondary: #8892a4;
     /* typography */
     --font-size-base: 16px;
     --font-size-sm: 0.9em;
@@ -58,9 +58,9 @@
     /* border state */
     --border-style: solid;
     /* shadows */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
     /* transitions */
     --transition-duration-fast: 150ms;
     --transition-duration-normal: 300ms;

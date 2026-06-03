@@ -98,7 +98,8 @@ const Card = styled.div`
     background: var(--white-color);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--stroke-color);
     max-width: 540px;
 `
 

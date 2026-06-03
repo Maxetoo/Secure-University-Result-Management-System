@@ -39,7 +39,6 @@ const DepartmentsPage = () => {
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
     const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-
     const handleCreate = (e) => {
         e.preventDefault()
         dispatch(createDepartment(form)).then((result) => {
@@ -220,7 +219,7 @@ const DepartmentsPage = () => {
                             <CloseBtn onClick={() => setShowDeleteConfirm(false)}>✕</CloseBtn>
                         </ModalHeader>
                         <p style={{ color: 'var(--light-text-color)', marginBottom: '1.5rem' }}>
-                            Are you sure you want to delete <strong>{selectedDept.name}</strong>? This action cannot be undone.
+                            Are you sure you want to delete <strong style={{ color: 'var(--text-color)' }}>{selectedDept.name}</strong>? This action cannot be undone.
                         </p>
                         <ActionRow>
                             <ModalButton $variant="danger" onClick={handleDelete} disabled={deleteLoad}>
@@ -243,17 +242,8 @@ const PageHeader = styled.div`
     align-items: flex-start;
     margin-bottom: 1.25rem;
 
-    h1 {
-        font-size: 1.5rem;
-        color: var(--text-color);
-        margin: 0 0 0.25rem;
-    }
-
-    .subtitle {
-        color: var(--light-text-color);
-        font-size: 0.9rem;
-        margin: 0;
-    }
+    h1 { font-size: 1.5rem; color: var(--text-color); margin: 0 0 0.25rem; }
+    .subtitle { color: var(--light-text-color); font-size: 0.9rem; margin: 0; }
 `
 
 const HeaderActions = styled.div`
@@ -268,9 +258,11 @@ const Button = styled.button`
     border-radius: 8px;
     cursor: pointer;
     background: var(--primary-color);
-    color: var(--white-color);
+    color: #ffffff;
     font-weight: 600;
     font-size: 0.9rem;
+    transition: opacity 0.2s;
+    &:hover { opacity: 0.9; }
 `
 
 const RefreshBtn = styled.button`
@@ -284,11 +276,10 @@ const RefreshBtn = styled.button`
     background: var(--white-color);
     color: var(--light-text-color);
     cursor: pointer;
+    transition: background 0.2s;
 
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+    &:hover { background: rgba(99, 102, 241, 0.1); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
 `
 
 const ToolBar = styled.div`
@@ -306,10 +297,9 @@ const SearchInput = styled.input`
     font-size: 0.875rem;
     outline: none;
     min-width: 260px;
+    transition: border-color 0.2s;
 
-    &:focus {
-        border-color: var(--primary-color);
-    }
+    &:focus { border-color: var(--primary-color); }
 `
 
 const ClearBtn = styled.button`
@@ -321,12 +311,15 @@ const ClearBtn = styled.button`
     font-size: 0.875rem;
     color: var(--light-text-color);
     cursor: pointer;
+    transition: background 0.2s;
+    &:hover { background: rgba(99, 102, 241, 0.08); }
 `
 
 const TableWrap = styled.div`
     background: var(--white-color);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--stroke-color);
     overflow-x: auto;
 `
 
@@ -334,30 +327,29 @@ const Table = styled.table`
     width: 100%;
     border-collapse: collapse;
 
-    th,
-    td {
+    th, td {
         padding: 0.85rem 1rem;
         text-align: left;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--stroke-color);
         font-size: 0.9rem;
+        color: var(--text-color);
     }
 
     th {
         font-weight: 600;
         color: var(--light-text-color);
-        background: #fafafa;
+        background: var(--secondary-color);
     }
 
-    tr:last-child td {
-        border-bottom: none;
-    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(99, 102, 241, 0.05); }
 `
 
 const CodeBadge = styled.span`
     display: inline-block;
     padding: 0.2rem 0.6rem;
-    background: #f0f4ff;
-    color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--highlight-color);
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 600;
@@ -376,8 +368,10 @@ const SmallButton = styled.button`
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 500;
-    background: ${props => props.$variant === 'danger' ? '#dc2626' : 'var(--primary-color)'};
+    transition: opacity 0.2s;
+    background: ${props => props.$variant === 'danger' ? '#ef4444' : 'var(--primary-color)'};
     color: white;
+    &:hover { opacity: 0.85; }
 `
 
 const LoadingRow = styled.div`
@@ -411,11 +405,10 @@ const PageBtn = styled.button`
     color: ${props => props.$active ? 'white' : 'var(--text-color)'};
     font-size: 0.875rem;
     cursor: pointer;
+    transition: all 0.2s;
 
-    &:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-    }
+    &:hover:not(:disabled) { border-color: var(--primary-color); }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
 `
 
 const PageInfo = styled.span`
@@ -427,19 +420,22 @@ const PageInfo = styled.span`
 const ModalOverlay = styled.div`
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.65);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(3px);
 `
 
 const ModalContent = styled.div`
     background: var(--white-color);
-    border-radius: 12px;
+    border: 1px solid var(--stroke-color);
+    border-radius: 14px;
     padding: 2rem;
     width: 90%;
     max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 `
 
 const ModalHeader = styled.div`
@@ -448,10 +444,7 @@ const ModalHeader = styled.div`
     align-items: center;
     margin-bottom: 1.5rem;
 
-    h2 {
-        font-size: 1.25rem;
-        margin: 0;
-    }
+    h2 { font-size: 1.25rem; margin: 0; color: var(--text-color); }
 `
 
 const CloseBtn = styled.button`
@@ -460,6 +453,8 @@ const CloseBtn = styled.button`
     font-size: 1.1rem;
     cursor: pointer;
     color: var(--light-text-color);
+    transition: color 0.2s;
+    &:hover { color: var(--text-color); }
 `
 
 const FormGroup = styled.div`
@@ -482,10 +477,9 @@ const FormGroup = styled.div`
         font-size: 0.9rem;
         outline: none;
         box-sizing: border-box;
+        transition: border-color 0.2s;
 
-        &:focus {
-            border-color: var(--primary-color);
-        }
+        &:focus { border-color: var(--primary-color); }
     }
 `
 
@@ -498,13 +492,15 @@ const ModalButton = styled.button`
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 600;
-    background: ${props => props.$variant === 'danger' ? '#dc2626' : props.$variant === 'outline' ? 'transparent' : 'var(--primary-color)'};
+    transition: opacity 0.2s;
+    background: ${props =>
+        props.$variant === 'danger' ? '#ef4444'
+        : props.$variant === 'outline' ? 'transparent'
+        : 'var(--primary-color)'};
     color: ${props => props.$variant === 'outline' ? 'var(--text-color)' : 'white'};
 
-    &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
+    &:hover:not(:disabled) { opacity: 0.88; }
+    &:disabled { opacity: 0.7; cursor: not-allowed; }
 `
 
 export default DepartmentsPage

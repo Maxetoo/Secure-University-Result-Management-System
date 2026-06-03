@@ -4,19 +4,19 @@ import toast from 'react-hot-toast';
 const ErrorNotificationPopup = ({ trigger, message = "An error occurred" }) => {
   useEffect(() => {
     if (trigger) {
-      toast.dismiss('error-toast'); 
+      toast.dismiss('error-toast');
       toast.error(message, {
         id: 'error-toast',
         duration: 3000,
         style: {
-          border: '1px solid #FECACA',
-          background: '#FEF2F2',
-          color: '#991B1B',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          background: '#1c2236',
+          color: '#f87171',
           fontWeight: 500,
         },
         iconTheme: {
-          primary: '#DC2626',
-          secondary: '#FEF2F2',
+          primary: '#f87171',
+          secondary: '#1c2236',
         },
       });
     }
@@ -26,4 +26,3 @@ const ErrorNotificationPopup = ({ trigger, message = "An error occurred" }) => {
 };
 
 export default ErrorNotificationPopup;
-

@@ -33,7 +33,6 @@ const CoursesPage = () => {
 
     const [form, setForm] = useState({ courseCode: '', title: '', departmentCode: '', level: '' })
 
-    // Search / filter / pagination
     const [search, setSearch] = useState('')
     const [levelFilter, setLevelFilter] = useState('')
     const [deptFilter, setDeptFilter] = useState('')
@@ -76,7 +75,6 @@ const CoursesPage = () => {
         setDeptFilter('')
         setPage(1)
     }
-
 
     const handleCreate = (e) => {
         e.preventDefault()
@@ -378,7 +376,7 @@ const CoursesPage = () => {
                             <CloseBtn onClick={() => setShowDeleteConfirm(false)}>✕</CloseBtn>
                         </ModalHeader>
                         <p style={{ color: 'var(--light-text-color)', marginBottom: '1.5rem' }}>
-                            Are you sure you want to delete <strong>{selectedCourse.title}</strong>? This action cannot be undone.
+                            Are you sure you want to delete <strong style={{ color: 'var(--text-color)' }}>{selectedCourse.title}</strong>? This action cannot be undone.
                         </p>
                         <ActionRow>
                             <ModalButton $variant="danger" onClick={handleDelete} disabled={deleteLoad}>
@@ -401,11 +399,7 @@ const PageHeader = styled.div`
     align-items: center;
     margin-bottom: 1.25rem;
 
-    h1 {
-        font-size: 1.5rem;
-        color: var(--text-color);
-        margin: 0;
-    }
+    h1 { font-size: 1.5rem; color: var(--text-color); margin: 0; }
 `
 
 const HeaderActions = styled.div`
@@ -420,9 +414,11 @@ const Button = styled.button`
     border-radius: 8px;
     cursor: pointer;
     background: var(--primary-color);
-    color: var(--white-color);
+    color: #ffffff;
     font-weight: 600;
     font-size: 0.9rem;
+    transition: opacity 0.2s;
+    &:hover { opacity: 0.9; }
 `
 
 const RefreshBtn = styled.button`
@@ -436,11 +432,10 @@ const RefreshBtn = styled.button`
     background: var(--white-color);
     color: var(--light-text-color);
     cursor: pointer;
+    transition: background 0.2s;
 
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+    &:hover { background: rgba(99, 102, 241, 0.1); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
 `
 
 const ToolBar = styled.div`
@@ -460,10 +455,9 @@ const SearchInput = styled.input`
     outline: none;
     min-width: 220px;
     flex: 1;
+    transition: border-color 0.2s;
 
-    &:focus {
-        border-color: var(--primary-color);
-    }
+    &:focus { border-color: var(--primary-color); }
 `
 
 const FilterSelect = styled.select`
@@ -473,13 +467,10 @@ const FilterSelect = styled.select`
     border-radius: 8px;
     font-size: 0.875rem;
     outline: none;
-    appearance: none;
-    background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
     cursor: pointer;
+    transition: border-color 0.2s;
 
-    &:focus {
-        border-color: var(--primary-color);
-    }
+    &:focus { border-color: var(--primary-color); }
 `
 
 const ClearBtn = styled.button`
@@ -491,12 +482,15 @@ const ClearBtn = styled.button`
     font-size: 0.875rem;
     color: var(--light-text-color);
     cursor: pointer;
+    transition: background 0.2s;
+    &:hover { background: rgba(99, 102, 241, 0.08); }
 `
 
 const TableWrap = styled.div`
     background: var(--white-color);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--stroke-color);
     overflow-x: auto;
 `
 
@@ -504,23 +498,22 @@ const Table = styled.table`
     width: 100%;
     border-collapse: collapse;
 
-    th,
-    td {
+    th, td {
         padding: 0.85rem 1rem;
         text-align: left;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--stroke-color);
         font-size: 0.9rem;
+        color: var(--text-color);
     }
 
     th {
         font-weight: 600;
         color: var(--light-text-color);
-        background: #fafafa;
+        background: var(--secondary-color);
     }
 
-    tr:last-child td {
-        border-bottom: none;
-    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(99, 102, 241, 0.05); }
 
     select {
         padding: 0.35rem 2.25rem 0.35rem 0.6rem;
@@ -528,8 +521,6 @@ const Table = styled.table`
         border-radius: 6px;
         font-size: 0.85rem;
         outline: none;
-        appearance: none;
-        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 0.6rem center;
     }
 `
 
@@ -546,8 +537,13 @@ const SmallButton = styled.button`
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 500;
-    background: ${props => props.$variant === 'danger' ? '#dc2626' : props.$variant === 'secondary' ? '#6366f1' : 'var(--primary-color)'};
+    transition: opacity 0.2s;
+    background: ${props =>
+        props.$variant === 'danger' ? '#ef4444'
+        : props.$variant === 'secondary' ? 'var(--highlight-color)'
+        : 'var(--primary-color)'};
     color: white;
+    &:hover { opacity: 0.85; }
 `
 
 const LoadingRow = styled.div`
@@ -581,11 +577,10 @@ const PageBtn = styled.button`
     color: ${props => props.$active ? 'white' : 'var(--text-color)'};
     font-size: 0.875rem;
     cursor: pointer;
+    transition: all 0.2s;
 
-    &:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-    }
+    &:hover:not(:disabled) { border-color: var(--primary-color); }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
 `
 
 const PageInfo = styled.span`
@@ -597,21 +592,24 @@ const PageInfo = styled.span`
 const ModalOverlay = styled.div`
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.65);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(3px);
 `
 
 const ModalContent = styled.div`
     background: var(--white-color);
-    border-radius: 12px;
+    border: 1px solid var(--stroke-color);
+    border-radius: 14px;
     padding: 2rem;
     width: 90%;
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 `
 
 const ModalHeader = styled.div`
@@ -620,10 +618,7 @@ const ModalHeader = styled.div`
     align-items: center;
     margin-bottom: 1.5rem;
 
-    h2 {
-        font-size: 1.25rem;
-        margin: 0;
-    }
+    h2 { font-size: 1.25rem; margin: 0; color: var(--text-color); }
 `
 
 const CloseBtn = styled.button`
@@ -632,6 +627,8 @@ const CloseBtn = styled.button`
     font-size: 1.1rem;
     cursor: pointer;
     color: var(--light-text-color);
+    transition: color 0.2s;
+    &:hover { color: var(--text-color); }
 `
 
 const FormGroup = styled.div`
@@ -654,10 +651,9 @@ const FormGroup = styled.div`
         font-size: 0.9rem;
         outline: none;
         box-sizing: border-box;
+        transition: border-color 0.2s;
 
-        &:focus {
-            border-color: var(--primary-color);
-        }
+        &:focus { border-color: var(--primary-color); }
     }
 
     select {
@@ -669,12 +665,9 @@ const FormGroup = styled.div`
         font-size: 0.9rem;
         outline: none;
         box-sizing: border-box;
-        appearance: none;
-        background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 1rem center;
+        transition: border-color 0.2s;
 
-        &:focus {
-            border-color: var(--primary-color);
-        }
+        &:focus { border-color: var(--primary-color); }
     }
 `
 
@@ -684,7 +677,7 @@ const ReadonlyField = styled.div`
     border: 1px solid var(--stroke-color);
     border-radius: 8px;
     font-size: 0.9rem;
-    background: #f9fafb;
+    background: var(--secondary-color);
     color: var(--light-text-color);
     display: flex;
     align-items: center;
@@ -699,14 +692,16 @@ const ModalButton = styled.button`
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 600;
-    background: ${props => props.$variant === 'danger' ? '#dc2626' : props.$variant === 'outline' ? 'transparent' : 'var(--primary-color)'};
+    transition: opacity 0.2s;
+    background: ${props =>
+        props.$variant === 'danger' ? '#ef4444'
+        : props.$variant === 'outline' ? 'transparent'
+        : 'var(--primary-color)'};
     color: ${props => props.$variant === 'outline' ? 'var(--text-color)' : 'white'};
     margin-top: ${props => props.$variant ? '0' : '0.5rem'};
 
-    &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
+    &:hover:not(:disabled) { opacity: 0.88; }
+    &:disabled { opacity: 0.7; cursor: not-allowed; }
 `
 
 const AssignMeta = styled.div`
@@ -715,16 +710,8 @@ const AssignMeta = styled.div`
     margin-bottom: 0.5rem;
     font-size: 0.875rem;
 
-    .label {
-        color: var(--light-text-color);
-        min-width: 80px;
-        font-weight: 500;
-    }
-
-    .value {
-        color: var(--text-color);
-        font-weight: 600;
-    }
+    .label { color: var(--light-text-color); min-width: 80px; font-weight: 500; }
+    .value { color: var(--text-color); font-weight: 600; }
 `
 
 const AssignLabel = styled.p`
@@ -763,25 +750,16 @@ const LecturerRow = styled.div`
     border: 1.5px solid ${props => props.$selected ? 'var(--primary-color)' : 'var(--stroke-color)'};
     border-radius: 8px;
     cursor: pointer;
-    background: ${props => props.$selected ? '#f0f4ff' : 'transparent'};
+    background: ${props => props.$selected ? 'rgba(99, 102, 241, 0.12)' : 'transparent'};
     transition: border-color 0.15s, background 0.15s;
 
     &:hover {
         border-color: var(--primary-color);
-        background: #f0f4ff;
+        background: rgba(99, 102, 241, 0.1);
     }
 
-    .name {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--text-color);
-    }
-
-    .meta {
-        font-size: 0.78rem;
-        color: var(--light-text-color);
-        margin-top: 0.1rem;
-    }
+    .name { font-size: 0.9rem; font-weight: 600; color: var(--text-color); }
+    .meta { font-size: 0.78rem; color: var(--light-text-color); margin-top: 0.1rem; }
 `
 
 const LecturerAvatar = styled.div`

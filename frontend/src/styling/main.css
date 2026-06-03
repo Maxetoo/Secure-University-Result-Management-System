@@ -8,13 +8,13 @@
         font-style: normal;
         font-display: swap;
     }
-    
+
     * {
         box-sizing: border-box;
         padding: 0;
         margin: 0;
     }
-    
+
     body {
         -webkit-tap-highlight-color: transparent;
         font-family: 'Varela Round', sans-serif;
@@ -22,8 +22,9 @@
         background: var(--background-color);
         overflow-x: hidden;
         overflow-y: auto;
+        color: var(--text-color);
     }
-    
+
     h1,
     h2,
     h3,
@@ -33,14 +34,14 @@
         margin: 0;
         padding: 0;
         font-weight: inherit;
+        color: var(--text-color);
     }
-    
+
     .logo {
         font-family: "Outfit", sans-serif;
-        /* font-family: 'Epika', sans-serif; */
         font-weight: 700;
     }
-    
+
     p,
     li,
     h1,
@@ -55,26 +56,43 @@
         font-family: 'Varela Round', sans-serif;
         font-weight: normal;
     }
-    
+
     h1 {
         font-weight: 700;
     }
-    
+
     button {
         user-select: none;
         cursor: pointer;
     }
 
+    input, textarea {
+        background-color: var(--white-color);
+        color: var(--text-color);
+    }
+
+    input::placeholder, textarea::placeholder {
+        color: var(--light-text-color);
+        opacity: 0.7;
+    }
+
     select {
         appearance: none;
         -webkit-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-color: var(--white-color);
+        color: var(--text-color);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 12px center;
         background-size: 16px;
         padding-right: 2rem;
     }
-    
+
+    select option {
+        background-color: #1c2236;
+        color: var(--text-color);
+    }
+
     a {
         text-decoration: none;
         color: inherit;
@@ -82,3 +100,14 @@
         border: none;
         outline: none;
     }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+        background: #3a4060;
+        border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: #4a5070; }
